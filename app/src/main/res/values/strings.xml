@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PayUMoneyExample</string>
+    <string name="txt_nike_shoes">Nike Power-Run</string>
+    <string name="txt_buy">Buy</string>
+    <string name="Rupees">₹</string>
+    <string name="nike_power_run">Nike Power-Run</string>
+    <string name="txt_product_price">8000</string>
+</resources>
