@@ -25,6 +25,20 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mTxvProductPrice, mTxvBuy;
 
+  /*  String txnid ="txt12346", amount ="20", phone ="7770878087",
+            productinfo ="BlueApp Course", firstname ="yogi", email ="yogiii363@gmail.com",
+            merchantId ="5884494", merchantkey="qZtEgloC";
+    private String salt = "BuvBXdsVpm";*/
+
+    //for my credentials
+    String txnid =System.currentTimeMillis() + "", amount ="20", phone ="7803994667",
+            productinfo ="Nike Power", firstname ="Mukesh", email ="kumarmukeshpatel57@gmail.com",
+            merchantId ="8250101", merchantkey="gtKFFx";//merchant key issue
+    private String salt = "eCwWELxi";
+
+    String hashSequence;
+    PayUmoneySdkInitializer.PaymentParam paymentParam;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,36 +53,61 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mTxvBuy.setEnabled(false);
-                launchPaymentFlow();
-//                payment();
+
+                //its working
+//                launchPaymentFlow();
+
+                //from my credentials
+                payment();
             }
         });
 
     }
 
-    /*private void payment() {
-        HashMap<String, Object> additionalParams = new HashMap<>();
-        additionalParams.put(PayUCheckoutProConstants.CP_UDF1, "udf1");
-        additionalParams.put(PayUCheckoutProConstants.CP_UDF2, "udf2");
-        additionalParams.put(PayUCheckoutProConstants.CP_UDF3, "udf3");
-        additionalParams.put(PayUCheckoutProConstants.CP_UDF4, "udf4");
-        additionalParams.put(PayUCheckoutProConstants.CP_UDF5, "udf5");
+    private void payment() {
+            hashSequence=merchantkey+"|"+txnid+"|"+amount+"|"+productinfo+"|"+firstname+"|"+email+"|"
+                    +"udf1"+"|"+"udf2"+"|"+"udf3"+"|"+"udf4"+"|"+"udf5"+"|"+"udf6"+"|"+"udf7"+"|"+"udf8"+"|"
+                    +"udf9"+"|"+"udf10"+"|"+salt;
 
-        PayUPaymentParams.Builder builder = new PayUPaymentParams.Builder();
-        builder.setAmount("1.0")
-                .setIsProduction(true)
-                .setProductInfo("Macbook Pro")
-                .setKey(key)
+            String serverCalculatedHash= getHashkey("SHA-512", hashSequence);
+
+        PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
+
+        builder.setAmount(amount)
+                .setTxnId(txnid)
                 .setPhone(phone)
-                .setTransactionId(String.valueOf(System.currentTimeMillis()))
-                .setFirstName("John")
-                .setEmail("john@yopmail.com")
-                .setSurl("https://payuresponse.firebaseapp.com/success")
-                .setFurl("https://payuresponse.firebaseapp.com/failure")
-                .setUserCredential(key+":john@yopmail.com")
-                .setAdditionalParams(additionalParams);
-        PayUPaymentParams payUPaymentParams = builder.build();
-    }*/
+                .setProductName(productinfo)
+                .setFirstName(firstname)
+                .setEmail(email)
+                .setsUrl(Constants.SURL)
+                .setfUrl(Constants.FURL)
+                .setUdf1("udf1")
+                .setUdf2("udf2")
+                .setUdf3("udf3")
+                .setUdf4("udf4")
+                .setUdf5("udf5")
+                .setUdf6("udf6")
+                .setUdf7("udf7")
+                .setUdf8("udf8")
+                .setUdf9("udf9")
+                .setUdf10("udf10")
+                .setIsDebug(false) // Integration environment - true (Debug)/ false(Production)
+                .setKey(merchantkey)
+                .setMerchantId(merchantId);
+
+        try {
+            paymentParam = builder.build();
+            paymentParam.setMerchantHash(serverCalculatedHash);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("TAG", "e: "+e.toString());
+        }
+
+        PayUmoneyFlowManager.startPayUMoneyFlow(paymentParam, MainActivity.this,
+                R.style.AppTheme_default, false);
+    }
+
 
     private void initViews() {
         mTxvProductPrice = findViewById(R.id.txv_product_price);
@@ -76,88 +115,64 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void launchPaymentFlow() {
+        hashSequence=merchantkey+"|"+txnid+"|"+amount+"|"+productinfo+"|"+firstname+"|"+email+"|"
+                +"udf1"+"|"+"udf2"+"|"+"udf3"+"|"+"udf4"+"|"+"udf5"+"|"+"udf6"+"|"+"udf7"+"|"+"udf8"+"|"
+                +"udf9"+"|"+"udf10"+"|"+salt;
 
-        /*PayUmoneyConfig payUmoneyConfig = PayUmoneyConfig.getInstance();
-        payUmoneyConfig.setPayUmoneyActivityTitle("Buy" + getResources().getString(R.string.nike_power_run));
-        payUmoneyConfig.setDoneButtonText("Pay " + getResources().getString(R.string.Rupees) + getResources().getString(R.string.txt_product_price));*/
+        String serverCalculatedHash= getHashkey("SHA-512", hashSequence);
 
         PayUmoneySdkInitializer.PaymentParam.Builder builder = new PayUmoneySdkInitializer.PaymentParam.Builder();
-        builder.setAmount(String.valueOf(convertStringToDouble(getResources().getString(R.string.txt_product_price))))
-                .setTxnId(System.currentTimeMillis() + "")
-                .setPhone(Constants.MOBILE)
-                .setProductName(getResources().getString(R.string.nike_power_run))
-                .setFirstName(Constants.FIRST_NAME)
-                .setEmail(Constants.EMAIL)
-                .setsUrl(Constants.SURL)
-                .setfUrl(Constants.FURL)
-                .setUdf1("")
-                .setUdf2("")
-                .setUdf3("")
-                .setUdf4("")
-                .setUdf5("")
-                .setUdf6("")
-                .setUdf7("")
-                .setUdf8("")
-                .setUdf9("")
-                .setUdf10("")
-                .setIsDebug(Constants.DEBUG)
-                .setKey(Constants.MERCHANT_KEY)
-                .setMerchantId(Constants.MERCHANT_ID);
+
+        builder.setAmount(amount)
+                .setTxnId(txnid)
+                .setPhone(phone)
+                .setProductName(productinfo)
+                .setFirstName(firstname)
+                .setEmail(email)
+                .setsUrl("https://www.payumoney.com/mobileapp/payumoney/success.php")
+                .setfUrl("https://www.payumoney.com/mobileapp/payumoney/failure.php")
+                .setUdf1("udf1")
+                .setUdf2("udf2")
+                .setUdf3("udf3")
+                .setUdf4("udf4")
+                .setUdf5("udf5")
+                .setUdf6("udf6")
+                .setUdf7("udf7")
+                .setUdf8("udf8")
+                .setUdf9("udf9")
+                .setUdf10("udf10")
+                .setIsDebug(false) // Integration environment - true (Debug)/ false(Production)
+                .setKey(merchantkey)
+                .setMerchantId(merchantId);
 
         try {
-            PayUmoneySdkInitializer.PaymentParam mPaymentParams = builder.build();
-            mPaymentParams = calculateServerSideHashAndInitiatePayment1(mPaymentParams);
-
-            PayUmoneyFlowManager.startPayUMoneyFlow(mPaymentParams, MainActivity.this, R.style.PayUMoney, false);
+            paymentParam = builder.build();
+            paymentParam.setMerchantHash(serverCalculatedHash);
         } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            mTxvBuy.setEnabled(true);
+            e.printStackTrace();
+            Log.d("TAG", "sent1: "+e.toString());
         }
+
+        PayUmoneyFlowManager.startPayUMoneyFlow(paymentParam, MainActivity.this,
+                R.style.AppTheme_default, false);
     }
+
 
     // Method to create hash
-    public static String hashCal(String str) {
-        byte[] hashseq = str.getBytes();
-        StringBuilder hexString = new StringBuilder();
+    public static String getHashkey(String type, String hashString) {
+        StringBuilder hash = new StringBuilder();
+        MessageDigest messageDigest = null;
         try {
-            MessageDigest algorithm = MessageDigest.getInstance("SHA-512");
-            algorithm.reset();
-            algorithm.update(hashseq);
-            byte messageDigest[] = algorithm.digest();
-            for (byte aMessageDigest : messageDigest) {
-                String hex = Integer.toHexString(0xFF & aMessageDigest);
-                if (hex.length() == 1) {
-                    hexString.append("0");
-                }
-                hexString.append(hex);
+            messageDigest = MessageDigest.getInstance(type);
+            messageDigest.update(hashString.getBytes());
+            byte[] mdbytes = messageDigest.digest();
+            for (byte hashByte : mdbytes) {
+                hash.append(Integer.toString((hashByte & 0xff) + 0x100, 16).substring(1));
             }
-        } catch (NoSuchAlgorithmException ignored) {
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
-        return hexString.toString();
-    }
-
-    private PayUmoneySdkInitializer.PaymentParam calculateServerSideHashAndInitiatePayment1(final PayUmoneySdkInitializer.PaymentParam paymentParam) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-        HashMap<String, String> params = paymentParam.getParams();
-        stringBuilder.append(params.get(PayUmoneyConstants.KEY)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.TXNID)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.AMOUNT)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.PRODUCT_INFO)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.FIRSTNAME)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.EMAIL)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.UDF1)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.UDF2)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.UDF3)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.UDF4)).append("|");
-        stringBuilder.append(params.get(PayUmoneyConstants.UDF5)).append("||||||");
-
-        stringBuilder.append(Constants.SALT_KEY);
-
-        String hash = hashCal(stringBuilder.toString());
-        paymentParam.setMerchantHash(hash);
-
-        return paymentParam;
+        return hash.toString();
     }
 
     @Override
@@ -198,7 +213,5 @@ public class MainActivity extends AppCompatActivity {
     private Double convertStringToDouble(String str) {
         return Double.parseDouble(str);
     }
-
-
 
 }
